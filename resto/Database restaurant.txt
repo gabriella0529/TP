@@ -1,0 +1,56 @@
+USE restaurant;
+
+-- 1. Catégories
+CREATE TABLE Categorie (
+    id_cat INT PRIMARY KEY AUTO_INCREMENT,
+    libelle VARCHAR(100) UNIQUE NOT NULL -- Libellé unique [cite: 39]
+);
+
+-- 2. Produits
+CREATE TABLE Produit (
+    id_prod INT PRIMARY KEY AUTO_INCREMENT,
+    nom VARCHAR(150) NOT NULL,
+    id_cat INT,
+    prix_vente DOUBLE CHECK (prix_vente > 0), -- Prix positif [cite: 40]
+    stock_actuel INT DEFAULT 0 CHECK (stock_actuel >= 0), -- Pas de stock négatif [cite: 41]
+    seuil_alerte INT DEFAULT 5,
+    FOREIGN KEY (id_cat) REFERENCES Categorie(id_cat)
+);
+
+-- 3. Utilisateurs
+CREATE TABLE Utilisateur (
+    id_user INT PRIMARY KEY AUTO_INCREMENT,
+    login VARCHAR(50) UNIQUE NOT NULL, -- Login unique [cite: 80]
+    password VARCHAR(255) NOT NULL -- Sera masqué à l'écran [cite: 80, 97]
+);
+
+-- 4. Mouvements de Stock
+CREATE TABLE MouvementStock (
+    id_mvt INT PRIMARY KEY AUTO_INCREMENT,
+    type_mvt ENUM('ENTRÉE', 'SORTIE') NOT NULL,
+    id_prod INT,
+    quantite INT CHECK (quantite > 0), -- Quantité > 0 [cite: 52]
+    date_mvt DATETIME DEFAULT CURRENT_TIMESTAMP,
+    motif VARCHAR(255),
+    FOREIGN KEY (id_prod) REFERENCES Produit(id_prod)
+);
+
+-- 5. Commandes
+CREATE TABLE Commande (
+    id_cmd INT PRIMARY KEY AUTO_INCREMENT,
+    date_cmd DATETIME DEFAULT CURRENT_TIMESTAMP,
+    etat ENUM('EN_COURS', 'VALIDÉE', 'ANNULÉE') DEFAULT 'EN_COURS',
+    total DOUBLE UNSIGNED DEFAULT 0.0
+);
+
+-- 6. Lignes de Commande
+CREATE TABLE LigneCommande (
+    id_ligne INT PRIMARY KEY AUTO_INCREMENT,
+    id_cmd INT,
+    id_prod INT,
+    quantite INT CHECK (quantite > 0),
+    prix_unitaire DOUBLE,
+    montant_ligne DOUBLE,
+    FOREIGN KEY (id_cmd) REFERENCES Commande(id_cmd) ON DELETE CASCADE,
+    FOREIGN KEY (id_prod) REFERENCES Produit(id_prod)
+);
