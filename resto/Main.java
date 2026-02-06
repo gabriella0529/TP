@@ -19,7 +19,7 @@ public class Main {
         // 3. Initialiser la Vue (Fenêtre de login)
         LoginView loginView = new LoginView();
 
-        // 4. Initialiser le Contrôleur (fait le lien entre les deux)
+        // 4. initialiser le Contrôleur (fait le lien entre les deux)
         new LoginController(loginView, userDAO);
 
         // 5. Afficher la fenêtre au centre de l'écran
