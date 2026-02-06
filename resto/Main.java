@@ -8,6 +8,7 @@ public class Main {
         // 1. Appliquer le style visuel du système (Ergonomie)
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            augmenterPolice(14);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -23,5 +24,17 @@ public class Main {
 
         // 5. Afficher la fenêtre au centre de l'écran
         loginView.setVisible(true);
+    }
+
+    private static void augmenterPolice(int size) {
+        java.awt.Font font = new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, size);
+        java.util.Enumeration<Object> keys = UIManager.getDefaults().keys();
+        while (keys.hasMoreElements()) {
+            Object key = keys.nextElement();
+            Object value = UIManager.get(key);
+            if (value instanceof javax.swing.plaf.FontUIResource) {
+                UIManager.put(key, new javax.swing.plaf.FontUIResource(font));
+            }
+        }
     }
 }

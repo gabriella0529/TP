@@ -27,5 +27,12 @@ public class DashboardController {
         for (Object[] ligne : alertes) {
             view.ajouterAlerte(ligne);
         }
+
+        // 3. Chargement du Top Ventes
+        view.viderTopVentes();
+        List<Object[]> top = dao.obtenirTopProduitsVendus();
+        for (Object[] ligne : top) {
+            view.ajouterTopVente(ligne);
+        }
     }
 }

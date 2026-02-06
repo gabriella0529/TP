@@ -1,5 +1,6 @@
 package view;
 
+import model.Produit;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
@@ -13,10 +14,12 @@ public class ProduitForm extends JDialog {
     private JButton btnEnregistrer = new JButton("Enregistrer");
     private JButton btnAnnuler = new JButton("Annuler");
     private boolean isValide = false;
+    private Produit produit;
 
-    public ProduitForm(Frame parent, Map<Integer, String> categories) {
-        super(parent, "Ajouter un Produit", true);
-        setSize(400, 300);
+    public ProduitForm(Frame parent, Map<Integer, String> categories, Produit p) {
+        super(parent, p == null ? "Ajouter un Produit" : "Modifier le Produit", true);
+        this.produit = p;
+        setSize(400, 350);
         setLocationRelativeTo(parent);
 
         // Remplir le combo avec les libellés de catégories
@@ -24,16 +27,31 @@ public class ProduitForm extends JDialog {
             comboCategories.addItem(libelle);
         }
 
-        JPanel panel = new JPanel(new GridLayout(6, 2, 10, 10));
+        // Pré-remplir si modification
+        if (produit != null) {
+            txtNom.setText(produit.getNom());
+            txtPrix.setText(String.valueOf(produit.getPrix()));
+            txtStock.setText(String.valueOf(produit.getStock()));
+            txtSeuil.setText(String.valueOf(produit.getSeuilAlerte()));
+
+            // Sélectionner la catégorie correspondante
+            String libCat = categories.get(produit.getIdCategorie());
+            if (libCat != null)
+                comboCategories.setSelectedItem(libCat);
+        } else {
+            txtSeuil.setText("5"); // Valeur par défaut
+        }
+
+        JPanel panel = new JPanel(new GridLayout(7, 2, 10, 10));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         panel.add(new JLabel("Nom du produit :"));
         panel.add(txtNom);
         panel.add(new JLabel("Catégorie :"));
         panel.add(comboCategories);
-        panel.add(new JLabel("Prix de vente (€) :"));
+        panel.add(new JLabel("Prix de vente (FCFA) :"));
         panel.add(txtPrix);
-        panel.add(new JLabel("Stock initial :"));
+        panel.add(new JLabel("Stock actuel :"));
         panel.add(txtStock);
         panel.add(new JLabel("Seuil d'alerte :"));
         panel.add(txtSeuil);
@@ -52,7 +70,7 @@ public class ProduitForm extends JDialog {
 
     // Getters pour récupérer les saisies
     public String getNom() {
-        return txtNom.getText();
+        return txtNom.getText().trim();
     }
 
     public String getCategorieSelectionnee() {
@@ -60,15 +78,15 @@ public class ProduitForm extends JDialog {
     }
 
     public String getPrix() {
-        return txtPrix.getText();
+        return txtPrix.getText().trim();
     }
 
     public String getStock() {
-        return txtStock.getText();
+        return txtStock.getText().trim();
     }
 
     public String getSeuil() {
-        return txtSeuil.getText();
+        return txtSeuil.getText().trim();
     }
 
     public boolean isConfirmed() {

@@ -6,6 +6,7 @@ import model.Produit;
 import view.CommandeView;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 public class RestaurationController {
     private ProduitDAO produitDAO = new ProduitDAO();
@@ -30,7 +31,7 @@ public class RestaurationController {
                     totalGlobal += montant;
                     // On ajoute au panier temporaire
                     panier.add(new LigneCommande(idProd, qte, p.getPrix()));
-                    view.afficherMessage("Ajouté : " + p.getNom() + " (Total partiel : " + totalGlobal + "€)");
+                    view.afficherMessage("Ajouté : " + p.getNom() + " (Total partiel : " + totalGlobal + " FCFA)");
                 } else {
                     view.afficherMessage("Erreur : Stock insuffisant !");
                 }
@@ -40,8 +41,12 @@ public class RestaurationController {
         }
 
         if (!panier.isEmpty()) {
-            commandeDAO.enregistrerCommande(totalGlobal, panier);
-            view.afficherMessage("Commande validée en base de données.");
+            try {
+                commandeDAO.enregistrerCommande(totalGlobal, panier);
+                JOptionPane.showMessageDialog(null, "Commande enregistrée avec succès !");
+            } catch (java.sql.SQLException ex) {
+                JOptionPane.showMessageDialog(null, "Erreur lors de l'enregistrement : " + ex.getMessage());
+            }
         }
     }
 }

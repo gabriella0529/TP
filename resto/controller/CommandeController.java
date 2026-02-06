@@ -6,6 +6,7 @@ import model.dao.ProduitDAO;
 import model.Produit;
 import model.LigneCommande;
 import javax.swing.JOptionPane;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -131,9 +132,10 @@ public class CommandeController {
                 viderPanier();
                 chargerProduits(); // Recharger pour mettre à jour les stocks
 
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(view, "Erreur base de données : " + ex.getMessage());
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(view, "Erreur lors de la validation : " + ex.getMessage());
-                ex.printStackTrace();
+                JOptionPane.showMessageDialog(view, "Erreur : " + ex.getMessage());
             }
         });
 

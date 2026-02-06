@@ -5,7 +5,7 @@ import java.util.List;
 import model.LigneCommande;
 
 public class CommandeDAO {
-    public void enregistrerCommande(double total, List<LigneCommande> lignes) {
+    public void enregistrerCommande(double total, List<LigneCommande> lignes) throws SQLException {
         Connection conn = null;
         try {
             conn = Database.getConnection();
@@ -22,30 +22,48 @@ public class CommandeDAO {
             if (rs.next()) {
                 int idCmd = rs.getInt(1);
 
-                // 2. Insérer les lignes de commande
-                String sqlLigne = "INSERT INTO LigneCommande (id_cmd, id_prod, quantite, prix_unitaire) VALUES (?, ?, ?, ?)";
+                // 2. Insérer les lignes de commande et mettre à jour les stocks
+                String sqlLigne = "INSERT INTO LigneCommande (id_cmd, id_prod, quantite, prix_unitaire, montant_ligne) VALUES (?, ?, ?, ?, ?)";
+                String sqlStock = "UPDATE Produit SET stock_actuel = stock_actuel - ? WHERE id_prod = ?";
+                String sqlMvt = "INSERT INTO MouvementStock (type_mvt, id_prod, quantite, motif) VALUES ('SORTIE', ?, ?, ?)";
+
                 PreparedStatement psLigne = conn.prepareStatement(sqlLigne);
+                PreparedStatement psStock = conn.prepareStatement(sqlStock);
+                PreparedStatement psMvt = conn.prepareStatement(sqlMvt);
 
                 for (LigneCommande ligne : lignes) {
+                    // Ligne de commande
                     psLigne.setInt(1, idCmd);
                     psLigne.setInt(2, ligne.getIdProd());
                     psLigne.setInt(3, ligne.getQuantite());
                     psLigne.setDouble(4, ligne.getPrixUnitaire());
-                    psLigne.addBatch(); // Optimisation
+                    psLigne.setDouble(5, ligne.getMontantLigne());
+                    psLigne.addBatch();
+
+                    // Mise à jour stock
+                    psStock.setInt(1, ligne.getQuantite());
+                    psStock.setInt(2, ligne.getIdProd());
+                    psStock.addBatch();
+
+                    // Mouvement stock
+                    psMvt.setInt(1, ligne.getIdProd());
+                    psMvt.setInt(2, ligne.getQuantite());
+                    psMvt.setString(3, "COMMANDE #" + idCmd);
+                    psMvt.addBatch();
                 }
                 psLigne.executeBatch();
+                psStock.executeBatch();
+                psMvt.executeBatch();
             }
 
             conn.commit(); // Valider tout d'un coup
-            System.out.println("Commande enregistrée avec succès !");
         } catch (SQLException e) {
             if (conn != null)
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            e.printStackTrace();
+                conn.rollback();
+            throw e;
+        } finally {
+            if (conn != null)
+                conn.setAutoCommit(true);
         }
     }
 

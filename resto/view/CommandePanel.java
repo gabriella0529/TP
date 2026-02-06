@@ -13,7 +13,7 @@ public class CommandePanel extends JPanel {
     // Composants pour le centre (Le panier)
     private JTable tablePanier;
     private DefaultTableModel tableModel;
-    private JLabel lblTotal = new JLabel("Total : 0.00 €");
+    private JLabel lblTotal = new JLabel("Total : 0 FCFA");
 
     // Composants pour le bas (Actions de commande)
     private JButton btnValider = new JButton("Valider la Commande");
@@ -42,7 +42,7 @@ public class CommandePanel extends JPanel {
         // --- ZONE BAS : TOTAL ET ACTIONS ---
         JPanel pnlBas = new JPanel(new BorderLayout());
 
-        lblTotal.setFont(new Font("Arial", Font.BOLD, 16));
+        lblTotal.setFont(new Font("Arial", Font.BOLD, 20));
         lblTotal.setForeground(Color.BLUE);
         pnlBas.add(lblTotal, BorderLayout.NORTH);
 
@@ -89,6 +89,6 @@ public class CommandePanel extends JPanel {
     }
 
     public void setTotal(double total) {
-        lblTotal.setText(String.format("Total : %.2f €", total));
+        lblTotal.setText(String.format("Total : %.0f FCFA", total));
     }
 }

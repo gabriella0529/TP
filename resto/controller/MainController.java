@@ -14,18 +14,41 @@ import javax.swing.JOptionPane;
 public class MainController {
     private MainView mainView;
 
-    public MainController(MainView view) {
-        this.mainView = view;
+    public MainController(MainView mainView) {
+        this.mainView = mainView;
         initListeners();
+        mainView.setSize(1000, 700); // Redimensionner la fenêtre
+        // Afficher le dashboard par défaut
+        afficherDashboard();
+    }
+
+    private void basculerVue(javax.swing.JPanel pnl) {
+        mainView.getMainContainer().removeAll();
+        mainView.getMainContainer().add(pnl);
+        mainView.getMainContainer().revalidate();
+        mainView.getMainContainer().repaint();
+    }
+
+    private void afficherDashboard() {
+        view.DashboardPanel pnl = new view.DashboardPanel();
+        new controller.DashboardController(pnl);
+        basculerVue(pnl);
     }
 
     private void initListeners() {
+        mainView.getBtnDashboard().addActionListener(e -> afficherDashboard());
+
+        mainView.getBtnCategories().addActionListener(e -> {
+            view.CategoriePanel pnl = new view.CategoriePanel();
+            new controller.CategorieController(pnl);
+            basculerVue(pnl);
+        });
+
         // Gestion des événements (clics boutons)
         mainView.getBtnProduits().addActionListener(e -> {
             ProduitPanel pnl = new ProduitPanel();
             ProduitDAO dao = new ProduitDAO();
             new ProduitController(pnl, dao);
-
             mainView.getMainContainer().removeAll();
             mainView.getMainContainer().add(pnl);
             mainView.getMainContainer().revalidate();
@@ -33,57 +56,20 @@ public class MainController {
         });
 
         mainView.getBtnCommandes().addActionListener(e -> {
-            // Logique pour créer une commande
-            System.out.println("Navigation vers Commandes");
+            view.CommandePanel pnl = new view.CommandePanel();
+            new controller.CommandeController(pnl);
+            basculerVue(pnl);
         });
 
         mainView.getBtnStocks().addActionListener(e -> {
-            // Ouvrir le formulaire d'ajout de produit
-            ouvrirFormulaireAjout();
+            view.StockPanel pnl = new view.StockPanel();
+            new controller.StockController(pnl);
+
+            mainView.getMainContainer().removeAll();
+            mainView.getMainContainer().add(pnl);
+            mainView.getMainContainer().revalidate();
+            mainView.getMainContainer().repaint();
         });
-    }
-
-    private void ouvrirFormulaireAjout() {
-        // 1. Récupérer les catégories depuis le DAO pour le formulaire
-        CategorieDAO categorieDAO = new CategorieDAO();
-        Map<Integer, String> categories = categorieDAO.obtenirToutes();
-
-        ProduitForm form = new ProduitForm(null, categories);
-        form.setVisible(true);
-
-        if (form.isConfirmed()) {
-            try {
-                // Validation des données
-                String nom = form.getNom();
-                if (nom.isEmpty())
-                    throw new Exception("Le nom est obligatoire.");
-
-                double prix = Double.parseDouble(form.getPrix());
-                if (prix <= 0)
-                    throw new Exception("Le prix doit être positif.");
-
-                int stock = Integer.parseInt(form.getStock());
-                if (stock < 0)
-                    throw new Exception("Le stock ne peut pas être négatif.");
-
-                // Récupérer l'ID de la catégorie à partir de son libellé
-                int idCat = categories.entrySet().stream()
-                        .filter(e -> e.getValue().equals(form.getCategorieSelectionnee()))
-                        .map(Map.Entry::getKey).findFirst().orElse(-1);
-
-                // 2. Appel au DAO pour l'insertion
-                ProduitDAO dao = new ProduitDAO();
-                dao.ajouter(new Produit(0, nom, prix, stock, idCat));
-
-                JOptionPane.showMessageDialog(mainView, "Produit ajouté avec succès !");
-
-            } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(mainView, "Veuillez saisir des nombres valides.", "Erreur",
-                        JOptionPane.ERROR_MESSAGE);
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(mainView, ex.getMessage(), "Erreur", JOptionPane.ERROR_MESSAGE);
-            }
-        }
     }
 
     public void afficher() {

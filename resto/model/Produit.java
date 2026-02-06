@@ -6,14 +6,20 @@ public class Produit {
     private double prix;
     private int stock;
     private int idCategorie;
+    private int seuilAlerte;
 
     // Constructeur complet
     public Produit(int id, String nom, double prix, int stock, int idCategorie) {
+        this(id, nom, prix, stock, idCategorie, 5); // Valeur par défaut
+    }
+
+    public Produit(int id, String nom, double prix, int stock, int idCategorie, int seuilAlerte) {
         this.id = id;
         this.nom = nom;
         this.prix = prix;
         this.stock = stock;
         this.idCategorie = idCategorie;
+        this.seuilAlerte = seuilAlerte;
     }
 
     // Getters
@@ -35,5 +41,9 @@ public class Produit {
 
     public int getStock() {
         return stock;
+    }
+
+    public int getSeuilAlerte() {
+        return seuilAlerte;
     }
 }

@@ -21,7 +21,8 @@ public class ProduitDAO {
                         rs.getString("nom"),
                         rs.getDouble("prix_vente"),
                         rs.getInt("stock_actuel"),
-                        rs.getInt("id_cat")));
+                        rs.getInt("id_cat"),
+                        rs.getInt("seuil_alerte")));
             }
         } catch (SQLException e) {
             System.err.println("Erreur SQL : " + e.getMessage());
@@ -42,7 +43,8 @@ public class ProduitDAO {
                             rs.getString("nom"),
                             rs.getDouble("prix_vente"),
                             rs.getInt("stock_actuel"),
-                            rs.getInt("id_cat"));
+                            rs.getInt("id_cat"),
+                            rs.getInt("seuil_alerte"));
                 }
             }
         } catch (SQLException e) {
@@ -52,7 +54,7 @@ public class ProduitDAO {
     }
 
     public void ajouter(Produit produit) {
-        String sql = "INSERT INTO Produit (nom, prix_vente, stock_actuel, id_cat) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Produit (nom, prix_vente, stock_actuel, id_cat, seuil_alerte) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = Database.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -60,11 +62,31 @@ public class ProduitDAO {
             ps.setDouble(2, produit.getPrix());
             ps.setInt(3, produit.getStock());
             ps.setInt(4, produit.getIdCategorie());
+            ps.setInt(5, produit.getSeuilAlerte());
             ps.executeUpdate();
 
         } catch (SQLException e) {
             System.err.println("Erreur SQL lors de l'ajout : " + e.getMessage());
             throw new RuntimeException("Impossible d'ajouter le produit", e);
+        }
+    }
+
+    public void modifier(Produit produit) {
+        String sql = "UPDATE Produit SET nom = ?, prix_vente = ?, stock_actuel = ?, id_cat = ?, seuil_alerte = ? WHERE id_prod = ?";
+        try (Connection conn = Database.getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, produit.getNom());
+            ps.setDouble(2, produit.getPrix());
+            ps.setInt(3, produit.getStock());
+            ps.setInt(4, produit.getIdCategorie());
+            ps.setInt(5, produit.getSeuilAlerte());
+            ps.setInt(6, produit.getId());
+            ps.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Erreur SQL lors de la modification : " + e.getMessage());
+            throw new RuntimeException("Impossible de modifier le produit", e);
         }
     }
 

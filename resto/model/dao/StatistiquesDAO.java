@@ -8,7 +8,7 @@ public class StatistiquesDAO {
 
     // Calcule le CA pour une date précise
     public double obtenirChiffreAffaireJour(String date) {
-        String sql = "SELECT SUM(total_commande) FROM Commande WHERE DATE(date_cmd) = ? AND etat = 'VALIDÉE'";
+        String sql = "SELECT SUM(total) FROM Commande WHERE DATE(date_cmd) = ? AND etat = 'VALIDÉE'";
         try (Connection conn = Database.getConnection();
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, date);
@@ -35,5 +35,25 @@ public class StatistiquesDAO {
             e.printStackTrace();
         }
         return alertes;
+    }
+
+    // Récupère les top 5 produits vendus
+    public List<Object[]> obtenirTopProduitsVendus() {
+        List<Object[]> top = new ArrayList<>();
+        String sql = "SELECT p.nom, SUM(lc.quantite) as total_vendu " +
+                "FROM LigneCommande lc " +
+                "JOIN Produit p ON lc.id_prod = p.id_prod " +
+                "GROUP BY p.id_prod, p.nom " +
+                "ORDER BY total_vendu DESC LIMIT 5";
+        try (Connection conn = Database.getConnection();
+                Statement stmt = conn.createStatement();
+                ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                top.add(new Object[] { rs.getString("nom"), rs.getInt("total_vendu") });
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return top;
     }
 }
